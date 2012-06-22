@@ -43,7 +43,7 @@ class ThirdPartyApplication(object):
         login_url += '?' + urllib.urlencode(params)
         return login_url
 
-    def manual_login(self):
+    def manually_authorize_application(self):
         callback_url = "http://localhost:" + str(self.port)
         login_url = self.get_account_access_request_url(callback_url)
 
