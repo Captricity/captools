@@ -18,4 +18,5 @@ setup(name='captricity-python-client',
             "Intended Audience :: Developers",
         ],
         long_description = LONG_DESCRIPTION,
-        packages=['captools', 'captools.api'])
+        packages=['captools', 'captools.api'],
+        package_data={'captools.api': ['img/*.png']})
