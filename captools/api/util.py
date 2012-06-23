@@ -24,8 +24,8 @@ def generate_request_access_signature(parameters, secret_key):
     # return the hex digest of the hashed string
     return sha256(string_to_hash).hexdigest()
 
-_example_form_images = ['page1.png', 'page2.png']
-_example_form_images = map(
+_example_form_image_paths = ['page1.png', 'page2.png']
+_example_form_image_paths = map(
         lambda x: os.path.join(os.path.dirname(__file__), 'img', x),
-        _example_form_images)
-example_form_images = map(lambda x: os.path.abspath(x), _example_form_images)
+        _example_form_image_paths)
+example_form_image_paths = map(lambda x: os.path.abspath(x), _example_form_image_paths)
