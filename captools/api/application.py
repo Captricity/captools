@@ -25,11 +25,11 @@ class CallbackHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.write("<html><head><title>Captricity API Token</title></head><body>%s</body></html>" % body)
 
 class ThirdPartyApplication(object):
-    def __init__(self, third_party_id, secret_key, endpoint='https://shreddr.captricity.com', port=8765):
+    def __init__(self, third_party_id, secret_key, endpoint='https://shreddr.captricity.com', port=None):
         self.third_party_id = third_party_id
         self.secret_key = secret_key
         self.endpoint = endpoint
-        self.port = port
+        self.port = 0 if port is None else port
 
     def get_account_access_request_url(self, return_url):
         login_url = self.endpoint + '/accounts/request-access/'
@@ -44,12 +44,16 @@ class ThirdPartyApplication(object):
         return login_url
 
     def manually_authorize_application(self):
-        callback_url = "http://localhost:" + str(self.port)
+        # First find out what port is free, in case we are letting the os choose port (self.port = 0)
+        server = SocketServer.TCPServer(('', self.port), CallbackHandler)
+        selected_port = server.server_address[1]
+
+        callback_url = "http://localhost:" + str(selected_port)
         login_url = self.get_account_access_request_url(callback_url)
 
         webbrowser.open(login_url)
 
-        SocketServer.TCPServer(('', self.port), CallbackHandler).handle_request()
+        server.handle_request()
 
         return _API_TOKEN
  
