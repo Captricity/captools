@@ -211,6 +211,15 @@ class Client(object):
         return result
         #return '%s://%s/%s' % (self.parsed_endpoint.scheme, self.parsed_endpoint.netloc, result)
 
+    def read_example_job(self):
+        '''
+        Convenience method for pulling out the example job.  Used in the
+        Captricity API Quickstart.
+        '''
+        for job in self.read_jobs():
+            if job['is_example']:
+                return job
+
 def parse_date_string(date_string):
     """Converts the date strings created by the API (e.g. '2012-04-06T19:11:33.032') and returns an equivalent datetime instance."""
     return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f")
