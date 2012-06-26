@@ -225,7 +225,11 @@ class Client(object):
         Convenience method for launching a job.  We use POST for actions
         outside of HTTP verbs (job launch in this case).
         '''
-        self.create_job(job_id, {'submit_job_action':True})
+        try:
+            self.create_job(job_id, {'submit_job_action':True})
+        except json.JSONDecodeError:
+            pass
+        return self.read_job(job_id)
 
 
 def parse_date_string(date_string):
