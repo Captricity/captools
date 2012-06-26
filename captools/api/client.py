@@ -220,6 +220,14 @@ class Client(object):
             if job['is_example']:
                 return job
 
+    def launch_job(self, job_id):
+        '''
+        Convenience method for launching a job.  We use POST for actions
+        outside of HTTP verbs (job launch in this case).
+        '''
+        self.create_job(job_id, {'submit_job_action':True})
+
+
 def parse_date_string(date_string):
     """Converts the date strings created by the API (e.g. '2012-04-06T19:11:33.032') and returns an equivalent datetime instance."""
     return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f")
