@@ -30,7 +30,7 @@ If you use the pip package manager, the following will install the Captricity AP
 
 ## Manual Installation of the Captricity Python Client
 
-Clone the repository using git if you haven't done so already:
+<a href="https://github.com/Captricity/captools/zipball/master" target="_blank">Download the zipped package</a> or clone the repository using git if you haven't done so already:
 
     git clone git@github.com:Captricity/captools.git
 
