@@ -13,7 +13,7 @@ import httplib
 import urlparse
 import traceback
 import mimetypes
-import simplejson as json
+import json
 from itertools import groupby
 from hashlib import sha256
 from urllib import urlencode
@@ -276,7 +276,7 @@ def _generate_read_callable(name, display_name, arguments, regex, doc, supported
         if 'params' in kwargs: url += "?" + urllib.urlencode(kwargs['params'])
         if 'accept' in kwargs: return self._getData(url, accept=kwargs['accept'])
         return self._getJSON(url)
-    f.__name__ = 'read_%s' % name
+    f.__name__ = str('read_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
     f._get_args = arguments
@@ -293,7 +293,7 @@ def _generate_update_callable(name, display_name, arguments, regex, doc, support
             if type(value) == file:
                 return self._putOrPostMultipart('PUT', self._generate_url(regex, args[:-1]), args[-1])
         return self._putOrPostJSON('PUT', self._generate_url(regex, args[:-1]), args[-1])
-    f.__name__ = 'update_%s' % name
+    f.__name__ = str('update_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
     f._get_args = arguments
@@ -310,7 +310,7 @@ def _generate_create_callable(name, display_name, arguments, regex, doc, support
             if type(value) == file:
                 return self._putOrPostMultipart('POST', self._generate_url(regex, args[:-1]), args[-1])
         return self._putOrPostJSON('POST', self._generate_url(regex, args[:-1]), args[-1])
-    f.__name__ = 'create_%s' % name
+    f.__name__ = str('create_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
     f._get_args = arguments
@@ -323,7 +323,7 @@ def _generate_create_callable(name, display_name, arguments, regex, doc, support
 def _generate_delete_callable(name, display_name, arguments, regex, doc, supported):
     def f(self, *args, **kwargs):
         return self._deleteResource(self._generate_url(regex, args))
-    f.__name__ = 'delete_%s' % name
+    f.__name__ = str('delete_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
     f._get_args = arguments
