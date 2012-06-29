@@ -227,7 +227,7 @@ class Client(object):
         '''
         try:
             self.create_job(job_id, {'submit_job_action':True})
-        except json.JSONDecodeError:
+        except ValueError:
             pass
         return self.read_job(job_id)
 
