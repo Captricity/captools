@@ -114,7 +114,7 @@ class Client(object):
         conn, head = self._constructRequest(version)
         conn.request("DELETE", url, "", head)
         resp = conn.getresponse()
-        if resp.status != 200: raise IOError('DELETE response from %s was %s' % (url, resp.status))
+        self._handle_response_errors('DELETE', url, resp)
 
     def _getJSON(self, url, version=None):
         """
@@ -123,7 +123,7 @@ class Client(object):
         conn, head = self._constructRequest(version)
         conn.request("GET", url, "", head)
         resp = conn.getresponse()
-        if resp.status != 200: raise IOError('GET response from %s was %s' % (url, resp.status))
+        self._handle_response_errors('GET', url, resp)
         return json.loads(resp.read())
 
     def _getData(self, url, version=None, accept=None):
@@ -144,7 +144,7 @@ class Client(object):
         if version: head[API_VERSION_HEADER_NAME] = version
         conn.request("GET", url, "", head)
         resp = conn.getresponse()
-        if resp.status != 200: raise IOError('GET response from %s was %s' % (url, resp.status))
+        self._handle_response_errors('GET', url, resp)
         return resp.read()
 
     def _putOrPostMultipart(self, method, url, data):
@@ -174,7 +174,7 @@ class Client(object):
         h.endheaders()
         h.send(body)
         errcode, errmsg, headers = h.getreply()
-        if errcode != 200: raise IOError('%s response from %s was %s' % (method, url, errcode))
+        if errcode != 200: raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
         return json.loads(h.file.read())
 
     def _putOrPostJSON(self, method, url, data):
@@ -195,7 +195,7 @@ class Client(object):
         }
         conn.request(method, url, urllib.urlencode(data), head)
         resp = conn.getresponse()
-        if resp.status != 200: raise IOError('%s response from %s was %s' % (method, url, resp.status))
+        self._handle_response_errors(method, url, resp)
         return json.loads(resp.read())
 
     def _generate_url(self, regex, arguments):
@@ -210,6 +210,12 @@ class Client(object):
         if len(regex_tokens) > len(arguments): result += regex_tokens[-1]
         return result
         #return '%s://%s/%s' % (self.parsed_endpoint.scheme, self.parsed_endpoint.netloc, result)
+
+    def _handle_response_errors(self, method, url, response):
+        if response.status == 200:
+            return
+        raise IOError('Response to %s to URL %s was status code %s: %s' % (
+                       method, url, response.status, response.read()))
 
     def read_example_job(self):
         '''
