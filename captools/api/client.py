@@ -275,7 +275,7 @@ def _generate_read_callable(name, display_name, arguments, regex, doc, supported
     def f(self, *args, **kwargs):
         url = self._generate_url(regex, args)
         if 'params' in kwargs: url += "?" + urllib.urlencode(kwargs['params'])
-        return self._getData(url, accept=(kwargs['accept'] if 'accept' in kwargs else None))
+        return self._getData(url, accept=(kwargs.get('accept')))
     f.__name__ = str('read_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
