@@ -14,6 +14,8 @@ import urlparse
 import traceback
 import mimetypes
 import json
+import Image
+from StringIO import StringIO
 from itertools import groupby
 from hashlib import sha256
 from urllib import urlencode
@@ -43,7 +45,7 @@ class Client(object):
         self.endpoint = endpoint
         self.parsed_endpoint = urlparse.urlparse(self.endpoint)
         self.api_version = None
-        self.schema = self._getJSON(self.parsed_endpoint.path, version=None)
+        self.schema = self._getData(self.parsed_endpoint.path, version=None)
         self.api_version = self.schema['version']
 
         for resource in self.schema['resources']:
@@ -116,16 +118,6 @@ class Client(object):
         resp = conn.getresponse()
         self._handle_response_errors('DELETE', url, resp)
 
-    def _getJSON(self, url, version=None):
-        """
-        GETs the resource at url, parses it as JSON, and returns the resulting data structure
-        """
-        conn, head = self._constructRequest(version)
-        conn.request("GET", url, "", head)
-        resp = conn.getresponse()
-        self._handle_response_errors('GET', url, resp)
-        return json.loads(resp.read())
-
     def _getData(self, url, version=None, accept=None):
         """
         GETs the resource at url and returns the raw response
@@ -145,6 +137,9 @@ class Client(object):
         conn.request("GET", url, "", head)
         resp = conn.getresponse()
         self._handle_response_errors('GET', url, resp)
+        content_type = resp.getheader('content-type')
+        if content_type == 'application/json':
+            return json.loads(resp.read())
         return resp.read()
 
     def _putOrPostMultipart(self, method, url, data):
@@ -280,8 +275,7 @@ def _generate_read_callable(name, display_name, arguments, regex, doc, supported
     def f(self, *args, **kwargs):
         url = self._generate_url(regex, args)
         if 'params' in kwargs: url += "?" + urllib.urlencode(kwargs['params'])
-        if 'accept' in kwargs: return self._getData(url, accept=kwargs['accept'])
-        return self._getJSON(url)
+        return self._getData(url, accept=(kwargs['accept'] if 'accept' in kwargs else None))
     f.__name__ = str('read_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
