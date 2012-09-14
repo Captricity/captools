@@ -14,8 +14,6 @@ import urlparse
 import traceback
 import mimetypes
 import json
-import Image
-from StringIO import StringIO
 from itertools import groupby
 from hashlib import sha256
 from urllib import urlencode
