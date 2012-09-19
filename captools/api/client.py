@@ -43,7 +43,7 @@ class Client(object):
         self.endpoint = endpoint
         self.parsed_endpoint = urlparse.urlparse(self.endpoint)
         self.api_version = None
-        self.schema = self._getData(self.parsed_endpoint.path, version=None)
+        self.schema = self._get_data(self.parsed_endpoint.path, version=None)
         self.api_version = self.schema['version']
 
         for resource in self.schema['resources']:
@@ -90,7 +90,7 @@ class Client(object):
                 print '\t\t', method_header, ' - ', method_desc
             print
 
-    def _constructRequest(self, version):
+    def _construct_request(self, version):
         """
         Utility for constructing the request header and connection
         """
@@ -107,16 +107,16 @@ class Client(object):
         if version: head[API_VERSION_HEADER_NAME] = version
         return conn, head
 
-    def _deleteResource(self, url, version=None):
+    def _delete_resource(self, url, version=None):
         """
         DELETEs the resource at url
         """
-        conn, head = self._constructRequest(version)
+        conn, head = self._construct_request(version)
         conn.request("DELETE", url, "", head)
         resp = conn.getresponse()
         self._handle_response_errors('DELETE', url, resp)
 
-    def _getData(self, url, version=None, accept=None):
+    def _get_data(self, url, version=None, accept=None):
         """
         GETs the resource at url and returns the raw response
         If the accept parameter is not None, the request passes is as the Accept header
@@ -140,7 +140,7 @@ class Client(object):
             return json.loads(resp.read())
         return resp.read()
 
-    def _putOrPostMultipart(self, method, url, data):
+    def _put_or_post_multipart(self, method, url, data):
         """
         encodes the data as a multipart form and PUTs or POSTs to the url
         the response is parsed as JSON and the returns the resulting data structure
@@ -170,7 +170,7 @@ class Client(object):
         if errcode != 200: raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
         return json.loads(h.file.read())
 
-    def _putOrPostJSON(self, method, url, data):
+    def _put_or_post_json(self, method, url, data):
         """
         urlencodes the data and PUTs it to the url
         the response is parsed as JSON and the resulting data type is returned
@@ -273,7 +273,7 @@ def _generate_read_callable(name, display_name, arguments, regex, doc, supported
     def f(self, *args, **kwargs):
         url = self._generate_url(regex, args)
         if 'params' in kwargs: url += "?" + urllib.urlencode(kwargs['params'])
-        return self._getData(url, accept=(kwargs.get('accept')))
+        return self._get_data(url, accept=(kwargs.get('accept')))
     f.__name__ = str('read_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
@@ -289,8 +289,8 @@ def _generate_update_callable(name, display_name, arguments, regex, doc, support
     def f(self, *args, **kwargs):
         for key, value in args[-1].items():
             if type(value) == file:
-                return self._putOrPostMultipart('PUT', self._generate_url(regex, args[:-1]), args[-1])
-        return self._putOrPostJSON('PUT', self._generate_url(regex, args[:-1]), args[-1])
+                return self._put_or_post_multipart('PUT', self._generate_url(regex, args[:-1]), args[-1])
+        return self._put_or_post_json('PUT', self._generate_url(regex, args[:-1]), args[-1])
     f.__name__ = str('update_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
@@ -306,8 +306,8 @@ def _generate_create_callable(name, display_name, arguments, regex, doc, support
     def f(self, *args, **kwargs):
         for key, value in args[-1].items():
             if type(value) == file:
-                return self._putOrPostMultipart('POST', self._generate_url(regex, args[:-1]), args[-1])
-        return self._putOrPostJSON('POST', self._generate_url(regex, args[:-1]), args[-1])
+                return self._put_or_post_multipart('POST', self._generate_url(regex, args[:-1]), args[-1])
+        return self._put_or_post_json('POST', self._generate_url(regex, args[:-1]), args[-1])
     f.__name__ = str('create_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
@@ -320,7 +320,7 @@ def _generate_create_callable(name, display_name, arguments, regex, doc, support
 
 def _generate_delete_callable(name, display_name, arguments, regex, doc, supported):
     def f(self, *args, **kwargs):
-        return self._deleteResource(self._generate_url(regex, args))
+        return self._delete_resource(self._generate_url(regex, args))
     f.__name__ = str('delete_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
