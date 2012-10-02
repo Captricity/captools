@@ -136,7 +136,7 @@ class Client(object):
         resp = conn.getresponse()
         self._handle_response_errors('GET', url, resp)
         content_type = resp.getheader('content-type')
-        if content_type == 'application/json':
+        if 'application/json' in content_type:
             return json.loads(resp.read())
         return resp.read()
 
