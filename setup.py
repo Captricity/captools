@@ -5,7 +5,7 @@ from distutils.core import setup
 LONG_DESCRIPTION = open('README.md', 'r').read()
 
 setup(name='captricity-python-client',
-        version='0.12',
+        version='0.13',
         description='Python client to access Captricity API',
         url='https://github.com/Captricity/captools',
         author='Captricity, Inc',
