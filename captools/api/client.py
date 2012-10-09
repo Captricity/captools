@@ -19,8 +19,8 @@ from hashlib import sha256
 from urllib import urlencode
 from datetime import datetime
 
-API_TOKEN_HEADER_NAME = 'X_API_TOKEN'
-API_VERSION_HEADER_NAME = 'X_API_VERSION'
+API_TOKEN_HEADER_NAME = 'Captricity-API-Token'
+API_VERSION_HEADER_NAME = 'Captricity-API-Version'
 CLIENT_VERSION = '0.01'
 USER_AGENT = 'Captricity Python Client %s' % CLIENT_VERSION
 
@@ -224,8 +224,20 @@ class Client(object):
         Convenience method for launching a job.  We use POST for actions
         outside of HTTP verbs (job launch in this case).
         '''
+        assert self.api_version.lower() in ['0.01a', '0.1'], 'This method is only supported in BETA (0.01) and ALPHA (0.01a) versions'
         try:
             self.create_job(job_id, {'submit_job_action':True})
+        except ValueError:
+            pass
+        return self.read_job(job_id)
+
+    def submit_job(self, job_id):
+        '''
+        Convenience method for launching a job. Use this method for v1
+        '''
+        assert self.api_version == '1', 'This method is only supported in v1'
+        try:
+            self.create_job_submit(job_id, {})
         except ValueError:
             pass
         return self.read_job(job_id)
