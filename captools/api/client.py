@@ -54,7 +54,7 @@ class Client(object):
                 update_callable = _generate_update_callable(resource['name'], resource['display_name'], resource['arguments'], resource['regex'], resource['doc'], resource['supported'], resource['put_syntaxes'])
                 setattr(self, update_callable.__name__, new.instancemethod(update_callable, self, self.__class__))
             if "POST" in resource['allowed_request_methods']:
-                create_callable = _generate_create_callable(resource['name'], resource['display_name'], resource['arguments'], resource['regex'], resource['doc'], resource['supported'], resource['post_syntaxes'])
+                create_callable = _generate_create_callable(resource['name'], resource['display_name'], resource['arguments'], resource['regex'], resource['doc'], resource['supported'], resource['post_syntaxes'], resource['is_action'])
                 setattr(self, create_callable.__name__, new.instancemethod(create_callable, self, self.__class__))
             if "DELETE" in resource['allowed_request_methods']:
                 delete_callable = _generate_delete_callable(resource['name'], resource['display_name'], resource['arguments'], resource['regex'], resource['doc'], resource['supported'])
@@ -231,18 +231,6 @@ class Client(object):
             pass
         return self.read_job(job_id)
 
-    def submit_job(self, job_id):
-        '''
-        Convenience method for launching a job. Use this method for v1
-        '''
-        assert self.api_version == '1', 'This method is only supported in v1'
-        try:
-            self.create_job_submit(job_id, {})
-        except ValueError:
-            pass
-        return self.read_job(job_id)
-
-
 def parse_date_string(date_string):
     """Converts the date strings created by the API (e.g. '2012-04-06T19:11:33.032') and returns an equivalent datetime instance."""
     return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f")
@@ -313,14 +301,17 @@ def _generate_update_callable(name, display_name, arguments, regex, doc, support
     f.is_supported_api = supported
     return f
 
-def _generate_create_callable(name, display_name, arguments, regex, doc, supported, post_arguments):
+def _generate_create_callable(name, display_name, arguments, regex, doc, supported, post_arguments, is_action):
     """Returns a callable which conjures the URL for the resource and POSTs data"""
     def f(self, *args, **kwargs):
         for key, value in args[-1].items():
             if type(value) == file:
                 return self._put_or_post_multipart('POST', self._generate_url(regex, args[:-1]), args[-1])
         return self._put_or_post_json('POST', self._generate_url(regex, args[:-1]), args[-1])
-    f.__name__ = str('create_%s' % name)
+    if is_action:
+        f.__name__ = str(name)
+    else:
+        f.__name__ = str('create_%s' % name)
     f.__doc__ = doc
     f._resource_uri = regex
     f._get_args = arguments
