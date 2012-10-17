@@ -170,7 +170,7 @@ class Client(object):
         h.endheaders()
         h.send(body)
         errcode, errmsg, headers = h.getreply()
-        if errcode != 200: raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
+        if errcode not in [200, 202]: raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
         return json.loads(h.file.read())
 
     def _put_or_post_json(self, method, url, data):
@@ -209,7 +209,7 @@ class Client(object):
         #return '%s://%s/%s' % (self.parsed_endpoint.scheme, self.parsed_endpoint.netloc, result)
 
     def _handle_response_errors(self, method, url, response):
-        if response.status == 200:
+        if response.status in [200, 202]:
             return
         raise IOError('Response to %s to URL %s was status code %s: %s' % (
                        method, url, response.status, response.read()))
