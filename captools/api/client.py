@@ -34,7 +34,7 @@ class Client(object):
     client = Client('your api token', 'http://host/api/backbone/schreddr')
     client.print_help()
     """
-    def __init__(self, api_token, endpoint="https://shreddr.captricity.com/api/backbone/schema"):
+    def __init__(self, api_token, endpoint="https://shreddr.captricity.com/api/backbone/schema", version=None):
         """
         endpoint must be the full url to the API schema document, like `http://127.0.0.1:8000/api/backbone/schema'
         api_token is the unique string associated with your account's profile which allows API access
@@ -42,8 +42,10 @@ class Client(object):
         self.api_token = api_token
         self.endpoint = endpoint
         self.parsed_endpoint = urlparse.urlparse(self.endpoint)
-        self.api_version = None
-        self.schema = self._get_data(self.parsed_endpoint.path, version=None)
+        self.api_version = version 
+        schema_url = self.parsed_endpoint.path
+        if version: schema_url = schema_url + '?version=' + version
+        self.schema = self._get_data(schema_url)
         self.api_version = self.schema['version']
 
         for resource in self.schema['resources']:
@@ -90,11 +92,10 @@ class Client(object):
                 print '\t\t', method_header, ' - ', method_desc
             print
 
-    def _construct_request(self, version):
+    def _construct_request(self):
         """
         Utility for constructing the request header and connection
         """
-        if not version: version = self.api_version
         if self.parsed_endpoint.scheme == 'https':
             conn = httplib.HTTPSConnection(self.parsed_endpoint.netloc)
         else:
@@ -104,24 +105,24 @@ class Client(object):
             "User-Agent": USER_AGENT,
             API_TOKEN_HEADER_NAME: self.api_token,
         }
-        if version: head[API_VERSION_HEADER_NAME] = version
+        if self.api_version in ['0.1', '0.01a']:
+            head[API_VERSION_HEADER_NAME] = self.api_version
         return conn, head
 
-    def _delete_resource(self, url, version=None):
+    def _delete_resource(self, url):
         """
         DELETEs the resource at url
         """
-        conn, head = self._construct_request(version)
+        conn, head = self._construct_request()
         conn.request("DELETE", url, "", head)
         resp = conn.getresponse()
         self._handle_response_errors('DELETE', url, resp)
 
-    def _get_data(self, url, version=None, accept=None):
+    def _get_data(self, url, accept=None):
         """
         GETs the resource at url and returns the raw response
         If the accept parameter is not None, the request passes is as the Accept header
         """
-        if not version: version = self.api_version
         if self.parsed_endpoint.scheme == 'https':
             conn = httplib.HTTPSConnection(self.parsed_endpoint.netloc)
         else:
@@ -130,8 +131,9 @@ class Client(object):
             "User-Agent": USER_AGENT,
             API_TOKEN_HEADER_NAME: self.api_token,
         }
+        if self.api_version in ['0.1', '0.01a']:
+            head[API_VERSION_HEADER_NAME] = self.api_version
         if accept: head['Accept'] = accept
-        if version: head[API_VERSION_HEADER_NAME] = version
         conn.request("GET", url, "", head)
         resp = conn.getresponse()
         self._handle_response_errors('GET', url, resp)
@@ -163,11 +165,12 @@ class Client(object):
         h.putheader('Accept', 'application/json')
         h.putheader('User-Agent', USER_AGENT)
         h.putheader(API_TOKEN_HEADER_NAME, self.api_token)
-        h.putheader(API_VERSION_HEADER_NAME, self.api_version)
+        if self.api_version in ['0.1', '0.01a']:
+            h.putheader(API_VERSION_HEADER_NAME, self.api_version)
         h.endheaders()
         h.send(body)
         errcode, errmsg, headers = h.getreply()
-        if errcode != 200: raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
+        if errcode not in [200, 202]: raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
         return json.loads(h.file.read())
 
     def _put_or_post_json(self, method, url, data):
@@ -184,8 +187,9 @@ class Client(object):
             "Accept" : "application/json",
             "User-Agent": USER_AGENT,
             API_TOKEN_HEADER_NAME: self.api_token,
-            API_VERSION_HEADER_NAME: self.api_version,
         }
+        if self.api_version in ['0.1', '0.01a']:
+            head[API_VERSION_HEADER_NAME] = self.api_version
         conn.request(method, url, urllib.urlencode(data), head)
         resp = conn.getresponse()
         self._handle_response_errors(method, url, resp)
@@ -205,7 +209,7 @@ class Client(object):
         #return '%s://%s/%s' % (self.parsed_endpoint.scheme, self.parsed_endpoint.netloc, result)
 
     def _handle_response_errors(self, method, url, response):
-        if response.status == 200:
+        if response.status in [200, 202]:
             return
         raise IOError('Response to %s to URL %s was status code %s: %s' % (
                        method, url, response.status, response.read()))
