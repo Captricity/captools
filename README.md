@@ -6,7 +6,7 @@ This is a Python client for the Captricity API
 
 If you use the pip package manager, the following will install the Captricity API Client:
     
-    pip install https://github.com/Captricity/captools/tarball/master 
+    pip install captricity-python-client
 
 ## Manual Installation of the Captricity Python Client
 
