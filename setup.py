@@ -13,7 +13,6 @@ setup(name='captricity-python-client',
         classifiers=[
             "Programming Language :: Python",
             "License :: OSI Approved :: MIT License",
-            "Operating System :: Linux, Mac OS X",
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Developers",
         ],
