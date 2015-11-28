@@ -1,18 +1,28 @@
 """
 An example application which uses Captricity's python client to upload images to a job.
 """
-import sys
 import argparse
 import math
-
 from client import Client
+
 
 def main():
     parser = argparse.ArgumentParser(description='List your Captricity jobs.')
-    parser.add_argument('--endpoint', required=True, help='the URL to the API definition resource, like https://shreddr.captricity.com/api/backbone/schema')
-    parser.add_argument('--apitoken', required=True, help='the api token associated with your Captricity account')
-    parser.add_argument('--job', required=True, type=int, help='the ID number for the job resource')
-    parser.add_argument('image', type=file, nargs='+', help='image files which you would like to upload')
+    parser.add_argument('--endpoint',
+                        required=True,
+                        help='the URL to the API definition resource, '
+                             'like https://shreddr.captricity.com/api/backbone/schema')
+    parser.add_argument('--apitoken',
+                        required=True,
+                        help='the api token associated with your Captricity account')
+    parser.add_argument('--job',
+                        required=True,
+                        type=int,
+                        help='the ID number for the job resource')
+    parser.add_argument('image',
+                        type=file,
+                        nargs='+',
+                        help='image files which you would like to upload')
 
     args = parser.parse_args()
 
@@ -23,7 +33,8 @@ def main():
     job = client.read_job(args.job)
     print 'Uploading images to job "%s"' % job['name']
 
-    # We need to group the instance images into instance sets. To do so, we need to find the page count of the form that is used for the job
+    # We need to group the instance images into instance sets.
+    # To do so, we need to find the page count of the form that is used for the job
     # We take advantage of the fact that the job's document resource metadata is included in the metadata for the job
     page_count = job['document']['sheet_count']
 
@@ -38,6 +49,7 @@ def main():
         # We will then upload each image to the image set in order until the image set is full
         for page_number, image in enumerate(args.image[i*page_count:(i*page_count)+page_count]):
             print '\t', image.name
-            client.create_iset_instance(iset['id'], page_number, {'image' : image, 'image_name' : image.name})
+            client.create_iset_instance(iset['id'], page_number, {'image': image, 'image_name': image.name})
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    main()
