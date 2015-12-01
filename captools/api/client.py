@@ -239,7 +239,6 @@ class Client(object):
         if len(regex_tokens) > len(arguments):
             result += regex_tokens[-1]
         return result
-        # return '%s://%s/%s' % (self.parsed_endpoint.scheme, self.parsed_endpoint.netloc, result)
 
     def _handle_response_errors(self, method, url, response):
         if response.status in [200, 202]:
