@@ -4,11 +4,10 @@ import urlparse
 import BaseHTTPServer
 import SocketServer
 import re
-
 from util import generate_request_access_signature
 
-
 _API_TOKEN = ""
+
 
 class CallbackHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -18,11 +17,13 @@ class CallbackHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             _API_TOKEN = parsed_query['token'][0]
             body = "Request granted: Your API token is %s" % _API_TOKEN
         else:
-            body = "Request denied: could not obtain API token. Did you click 'Deny Access' when prompted to grant access?"
+            body = "Request denied: could not obtain API token. " \
+                   "Did you click 'Deny Access' when prompted to grant access?"
         self.send_response(200, 'OK')
         self.send_header('Content-type', 'html')
         self.end_headers()
         self.wfile.write("<html><head><title>Captricity API Token</title></head><body>%s</body></html>" % body)
+
 
 class ThirdPartyApplication(object):
     def __init__(self, third_party_id, secret_key, endpoint='https://shreddr.captricity.com', port=None):
@@ -56,4 +57,3 @@ class ThirdPartyApplication(object):
         server.handle_request()
 
         return _API_TOKEN
- 

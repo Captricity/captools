@@ -18,7 +18,8 @@ If you use the pip package manager, the following will install the Captricity AP
 Manual Installation of the Captricity Python Client
 ---------------------------------------------------
 
-`Download the zipped package <https://github.com/Captricity/captools/zipball/master>` or clone the repository using git if you haven't done so already:
+`Download the zipped package <https://github.com/Captricity/captools/zipball/master>`
+or clone the repository using git if you haven't done so already:
 
     git clone git@github.com:Captricity/captools.git
 
@@ -32,24 +33,25 @@ You should now be able to import captools.api in your python environment.
 Quickstart
 ----------
 
-Please see the `Captricity API Quickstart guide <https://shreddr.captricity.com/developer/quickstart/>` for a short hands-on introduction to using this client with the Captricity API.  
+Please see the `Captricity API Quickstart guide <https://shreddr.captricity.com/developer/quickstart/>`
+for a short hands-on introduction to using this client with the Captricity API.
 
 License
 -------
 This is licensed under the MIT license. See LICENSE.txt.'''
 
 setup(name='captricity-python-client',
-        version='0.20',
-        description='Python client to access Captricity API',
-        url='https://github.com/Captricity/captools',
-        author='Captricity, Inc',
-        author_email='support@captricity.com',
-        classifiers=[
-            "Programming Language :: Python",
-            "License :: OSI Approved :: MIT License",
-            "Development Status :: 3 - Alpha",
-            "Intended Audience :: Developers",
-        ],
-        long_description = LONG_DESCRIPTION,
-        packages=['captools', 'captools.api'],
-        package_data={'captools.api': ['img/*.png']})
+      version='0.21',
+      description='Python client to access Captricity API',
+      url='https://github.com/Captricity/captools',
+      author='Captricity, Inc',
+      author_email='support@captricity.com',
+      classifiers=[
+          "Programming Language :: Python",
+          "License :: OSI Approved :: MIT License",
+          "Development Status :: 3 - Alpha",
+          "Intended Audience :: Developers",
+      ],
+      long_description=LONG_DESCRIPTION,
+      packages=['captools', 'captools.api'],
+      package_data={'captools.api': ['img/*.png']})
