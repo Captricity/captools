@@ -12,7 +12,7 @@ Pip Installation of the Captricity Python Client
 ------------------------------------------------
 
 If you use the pip package manager, the following will install the Captricity API Client:
-    
+
     pip install captricity-python-client
 
 Manual Installation of the Captricity Python Client
@@ -24,7 +24,7 @@ or clone the repository using git if you haven't done so already:
     git clone git@github.com:Captricity/captools.git
 
 captools comes with a setup.py, which makes it easy to install into your python environment:
-    
+
     cd captools
     python setup.py install
 
@@ -41,7 +41,7 @@ License
 This is licensed under the MIT license. See LICENSE.txt.'''
 
 setup(name='captricity-python-client',
-      version='0.21',
+      version='0.22',
       description='Python client to access Captricity API',
       url='https://github.com/Captricity/captools',
       author='Captricity, Inc',
@@ -54,4 +54,5 @@ setup(name='captricity-python-client',
       ],
       long_description=LONG_DESCRIPTION,
       packages=['captools', 'captools.api'],
+      install_requires=['requests>=2.8.1'],
       package_data={'captools.api': ['img/*.png']})

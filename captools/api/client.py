@@ -6,12 +6,15 @@ NOTE: Methods which start with an underscore (_) are for internal use only and W
 """
 import new
 import urllib
-import httplib 
+import httplib
 import urlparse
 import mimetypes
 import json
 from itertools import groupby
 from datetime import datetime
+
+import requests
+
 
 API_TOKEN_HEADER_NAME = 'Captricity-API-Token'
 API_VERSION_HEADER_NAME = 'Captricity-API-Version'
@@ -39,7 +42,7 @@ class Client(object):
         self.api_token = api_token
         self.endpoint = endpoint
         self.parsed_endpoint = urlparse.urlparse(self.endpoint)
-        self.api_version = version 
+        self.api_version = version
         schema_url = self.parsed_endpoint.path
         if version:
             schema_url = schema_url + '?version=' + version
@@ -172,37 +175,34 @@ class Client(object):
             return json.loads(resp.read())
         return resp.read()
 
-    def _put_or_post_multipart(self, method, url, data):
+    def _put_or_post_multipart(self, method, url, data_to_encode):
         """
         encodes the data as a multipart form and PUTs or POSTs to the url
         the response is parsed as JSON and the returns the resulting data structure
         """
-        fields = []
-        files = []
-        for key, value in data.items():
+        data = {}
+        files = {}
+        for key, value in data_to_encode.items():
             if type(value) == file:
-                files.append((key, value.name, value.read()))
+                files = {key: open(value.name, 'rb')}
             else:
-                fields.append((key, value))
-        content_type, body = _encode_multipart_formdata(fields, files)
-        if self.parsed_endpoint.scheme == 'https':
-            h = httplib.HTTPS(self.parsed_endpoint.netloc)
-        else:
-            h = httplib.HTTP(self.parsed_endpoint.netloc)
-        h.putrequest(method, url)
-        h.putheader('Content-Type', content_type)
-        h.putheader('Content-Length', str(len(body)))
-        h.putheader('Accept', 'application/json')
-        h.putheader('User-Agent', USER_AGENT)
-        h.putheader(API_TOKEN_HEADER_NAME, self.api_token)
+                data[key] = value
+
+        endpoint = self.parsed_endpoint.scheme + '://' + self.parsed_endpoint.netloc + url
+        headers = {'User-Agent': USER_AGENT, API_TOKEN_HEADER_NAME: self.api_token}
         if self.api_version in ['0.1', '0.01a']:
-            h.putheader(API_VERSION_HEADER_NAME, self.api_version)
-        h.endheaders()
-        h.send(body)
-        errcode, errmsg, headers = h.getreply()
-        if errcode not in [200, 202]:
-            raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
-        return json.loads(h.file.read())
+            headers[API_VERSION_HEADER_NAME] = self.api_version
+
+        if method == 'POST':
+            response = requests.post(endpoint, files=files, data=data, headers=headers)
+        elif method == 'PUT':
+            response = requests.put(endpoint, files=files, data=data, headers=headers)
+        else:
+            raise NotImplementedError('This function only supports POST and PUT')
+
+        if response.status_code not in [200, 202]:
+            raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, response.status_code, response.content))
+        return json.loads(response.content)
 
     def _put_or_post_json(self, method, url, data):
         """
@@ -326,7 +326,7 @@ def _generate_read_callable(name, display_name, arguments, regex, doc, supported
     f.__doc__ = doc
     f._resource_uri = regex
     f._get_args = arguments
-    f._put_or_post_args = None 
+    f._put_or_post_args = None
     f.resource_name = display_name
     f.is_api_call = True
     f.is_supported_api = supported
