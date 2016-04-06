@@ -296,7 +296,7 @@ def _encode_multipart_formdata(fields, files):
     for (key, filename, value) in files:
         L.append('--' + BOUNDARY)
         L.append(str('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename)))
-        L.append('Content-Type: %s' % get_content_type(filename))
+        L.append(str('Content-Type: %s' % get_content_type(filename)))
         L.append('')
         L.append(value)
     L.append('--' + BOUNDARY + '--')
