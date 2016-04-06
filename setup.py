@@ -41,7 +41,7 @@ License
 This is licensed under the MIT license. See LICENSE.txt.'''
 
 setup(name='captricity-python-client',
-      version='0.21',
+      version='0.22',
       description='Python client to access Captricity API',
       url='https://github.com/Captricity/captools',
       author='Captricity, Inc',
