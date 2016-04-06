@@ -132,6 +132,7 @@ class Client(object):
         head = {
             "Accept": "application/json",
             "User-Agent": USER_AGENT,
+            'Host': self.parsed_endpoint.netloc,
             API_TOKEN_HEADER_NAME: self.api_token,
         }
         if self.api_version in ['0.1', '0.01a']:
@@ -157,8 +158,9 @@ class Client(object):
         else:
             conn = httplib.HTTPConnection(self.parsed_endpoint.netloc)
         head = {
-            "User-Agent": USER_AGENT,
+            'User-Agent': USER_AGENT,
             API_TOKEN_HEADER_NAME: self.api_token,
+            'Host': self.parsed_endpoint.netloc
         }
         if self.api_version in ['0.1', '0.01a']:
             head[API_VERSION_HEADER_NAME] = self.api_version
@@ -192,6 +194,7 @@ class Client(object):
         h.putrequest(method, url)
         h.putheader('Content-Type', content_type)
         h.putheader('Content-Length', str(len(body)))
+        h.putheader('Host', self.parsed_endpoint.netloc)
         h.putheader('Accept', 'application/json')
         h.putheader('User-Agent', USER_AGENT)
         h.putheader(API_TOKEN_HEADER_NAME, self.api_token)
@@ -216,6 +219,7 @@ class Client(object):
         head = {
             "Content-Type": "application/json",
             "Accept": "application/json",
+            'Host': self.parsed_endpoint.netloc,
             "User-Agent": USER_AGENT,
             API_TOKEN_HEADER_NAME: self.api_token,
         }
