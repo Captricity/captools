@@ -201,7 +201,7 @@ class Client(object):
         h.send(body)
         errcode, errmsg, headers = h.getreply()
         if errcode not in [200, 202]:
-            raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, h.file.read()))
+            raise IOError('Response to %s to URL %s was status code %s: %s' % (method, url, errcode, errmsg))
         return json.loads(h.file.read())
 
     def _put_or_post_json(self, method, url, data):
