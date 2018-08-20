@@ -1,3 +1,15 @@
+# THIS MODULE HAS BEEN DEPRECATED
+
+The Captricity API Python Client is deprecated due to the proliferation of good
+API Client builders (e.g [`slumber`](https://github.com/samgiles/slumber)) and
+great REST client libraries (e.g [`requests`](https://github.com/requests/requests))
+that make an official client library unnecessary for most cases.
+
+Note that although this module is officially deprecated, the functionality will be supported
+for as long as Captricity supports the v1 API. However, Captricity has no intention
+of supporting `captools` beyond the v1 API.
+
+
 # Captricity API Python Client
 
 This is a Python client for the Captricity API
